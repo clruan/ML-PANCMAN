@@ -50,4 +50,3 @@ export function changeDirection(state, { direction }) {
         }
     };
 }
-

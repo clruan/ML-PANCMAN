@@ -19,4 +19,9 @@ export const lossAtom = atom(null); // Loss value
 export const trainingProgressAtom = atom(-1); // Training progress
 export const stopTrainingAtom = atom(false); // Flag to stop training
 
-
+// ---- Camera & Validation ----
+export const isCameraOnAtom = atom(false); // Webcam availability for shared features
+export const validationActiveAtom = atom(false); // Validation loop state
+export const validationDirectionAtom = atom(null); // Latest validation direction label
+export const validationConfidenceAtom = atom(0); // Latest validation confidence
+export const validationThresholdAtom = atom(0.7); // Default confidence threshold

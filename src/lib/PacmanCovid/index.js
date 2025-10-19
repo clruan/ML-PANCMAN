@@ -70,17 +70,6 @@ export default class PacmanCovid extends Component {
     clearTimeout(this.timers.animate);
   }
 
-  step() {
-    const result = animate(this.state);
-
-    this.setState({
-      ...result,
-    });
-
-    clearTimeout(this.timers.animate);
-    this.timers.animate = setTimeout(() => this.step(), 20);
-  }
-
   changeDirection(direction) {
     this.setState(changeDirection(this.state, { direction }));
   }

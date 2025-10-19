@@ -1,19 +1,21 @@
 import Webcam from "react-webcam";
-import { Grid, Button, Box } from "@mui/material";
+import { Grid, Button, Box, Typography } from "@mui/material";
 import {
     ArrowUpward,
     ArrowDownward,
     ArrowBack,
     ArrowForward,
 } from "@mui/icons-material/";
-import { useState, useRef } from "react";
 import { useAtom } from "jotai";
 import {
     imgSrcArrAtom,
-    dataSetSizeAtom,
-    batchArrayAtom,
     batchSizeAtom,
     gameRunningAtom,
+    isCameraOnAtom,
+    validationActiveAtom,
+    validationConfidenceAtom,
+    validationDirectionAtom,
+    validationThresholdAtom,
 } from "../GlobalState";
 
 const DIRECTIONS = {
@@ -23,8 +25,17 @@ const DIRECTIONS = {
     right: <ArrowForward />,
 };
 
+const HIGHLIGHT_ROTATIONS = {
+    up: 0,
+    right: 90,
+    down: 180,
+    left: 270,
+};
+
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
 export default function DataCollection({ webcamRef }) {
-    const [isCameraOn, setIsCameraOn] = useState(false);
+    const [isCameraOn, setIsCameraOn] = useAtom(isCameraOnAtom);
 
     // ---- Model Training ----
     const [imgSrcArr, setImgSrcArr] = useAtom(imgSrcArrAtom);
@@ -33,7 +44,11 @@ export default function DataCollection({ webcamRef }) {
     const [, setBatchSize] = useAtom(batchSizeAtom);
     const [gameRunning] = useAtom(gameRunningAtom);
 
-    // ---- UI Display ----
+    // ---- Shared Overlay State ----
+    const [validationActive] = useAtom(validationActiveAtom);
+    const [validationConfidence] = useAtom(validationConfidenceAtom);
+    const [validationDirection] = useAtom(validationDirectionAtom);
+    const [validationThreshold] = useAtom(validationThresholdAtom);
 
     const capture = (direction) => async () => {
         // Capture image from webcam
@@ -93,18 +108,27 @@ export default function DataCollection({ webcamRef }) {
                 </Box>
                 <Box sx={{ marginTop: 1 }}>
                     {isCameraOn ? (
-                        <Webcam
-                            mirrored
-                            width={224}
-                            height={224}
-                            ref={webcamRef}
-                            screenshotFormat="image/jpeg"
-                            videoConstraints={{
-                                width: 224,
-                                height: 224,
-                                facingMode: "user",
-                            }}
-                        />
+                        <Box className="camera-face-container">
+                            <Webcam
+                                mirrored
+                                className="camera-face-video"
+                                width={224}
+                                height={224}
+                                ref={webcamRef}
+                                screenshotFormat="image/jpeg"
+                                videoConstraints={{
+                                    width: 224,
+                                    height: 224,
+                                    facingMode: "user",
+                                }}
+                            />
+                            <CameraOverlay
+                                validationActive={validationActive}
+                                validationConfidence={validationConfidence}
+                                validationDirection={validationDirection}
+                                validationThreshold={validationThreshold}
+                            />
+                        </Box>
                     ) : (
                         cameraPlaceholder
                     )}
@@ -150,5 +174,96 @@ const OneDirection = ({ directionIcon, onCapture, dirImgSrcArr, disabled }) => {
                 )}
             </Box>
         </Grid>
+    );
+};
+
+const CameraOverlay = ({
+    validationActive,
+    validationConfidence,
+    validationDirection,
+    validationThreshold,
+}) => {
+    if (!validationActive) {
+        return null;
+    }
+
+    const normalizedConfidence = validationActive
+        ? clamp(
+              validationConfidence /
+                  Math.max(validationThreshold || 0.001, 0.001),
+              0,
+              1
+          )
+        : 0;
+
+    const ringStyle = {};
+    const base = { r: 210, g: 210, b: 210 };
+    const target = { r: 76, g: 175, b: 80 };
+    const lerp = (start, end) =>
+        Math.round(start + (end - start) * normalizedConfidence);
+
+    const color = {
+        r: lerp(base.r, target.r),
+        g: lerp(base.g, target.g),
+        b: lerp(base.b, target.b),
+    };
+
+    const alpha = 0.4 + normalizedConfidence * 0.45;
+    const shadowAlpha = 0.05 + normalizedConfidence * 0.4;
+    const scale = 0.95 + normalizedConfidence * 0.05;
+
+    ringStyle.borderColor = `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha})`;
+    ringStyle.color = `rgba(${color.r}, ${color.g}, ${color.b}, ${Math.min(
+        0.95,
+        alpha + 0.1
+    )})`;
+    ringStyle.boxShadow = `0 0 ${12 + normalizedConfidence * 14}px rgba(${color.r}, ${
+        color.g
+    }, ${color.b}, ${shadowAlpha})`;
+    ringStyle.transform = `scale(${scale})`;
+
+    let highlightStyle = null;
+    if (
+        validationDirection &&
+        HIGHLIGHT_ROTATIONS.hasOwnProperty(validationDirection)
+    ) {
+        const rotation = HIGHLIGHT_ROTATIONS[validationDirection];
+        const spread = 40 + normalizedConfidence * 18;
+        const start = -spread / 2;
+        const end = spread / 2;
+        const strength = 0.3 + normalizedConfidence * 0.55;
+        const gradient = `conic-gradient(from ${start}deg, rgba(76,175,80, ${strength}) 0deg, rgba(76,175,80, 0.15) ${end * 0.55}deg, rgba(76,175,80, 0) ${end}deg, transparent 360deg)`;
+        highlightStyle = {
+            background: gradient,
+            opacity: clamp(0.2 + normalizedConfidence, 0, 1),
+            transform: `rotate(${rotation}deg) scale(${0.94 + normalizedConfidence * 0.04})`,
+        };
+    }
+
+    const infoLines = [];
+    infoLines.push(
+        `Direction: ${
+            validationDirection ? validationDirection.toUpperCase() : "—"
+        } (${Math.round(validationConfidence * 100)}%)`
+    );
+
+    return (
+        <Box className="camera-face-overlay">
+            <Box className="camera-face-ring" style={ringStyle}>
+                {highlightStyle && (
+                    <Box className="camera-face-ring-highlight" style={highlightStyle} />
+                )}
+                <Box className="camera-face-ring-icon">
+                    {validationDirection ? validationDirection.toUpperCase() : "—"}
+                </Box>
+            </Box>
+            <Box className="camera-face-overlay-info">
+                {infoLines.map((line) => (
+                    <Typography key={line} variant="caption">
+                        {line}
+                    </Typography>
+                ))}
+            </Box>
+        </Box>
     );
 };

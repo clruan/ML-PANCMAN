@@ -73,4 +73,3 @@ export function animatePlayer(state, time) {
 
     return nextState;
 }
-

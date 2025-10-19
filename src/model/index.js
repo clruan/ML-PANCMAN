@@ -2,6 +2,9 @@ import * as tf from "@tensorflow/tfjs";
 import { getDefaultStore } from "jotai";
 import { stopTrainingAtom, trainingProgressAtom } from "../GlobalState";
 
+const DIRECTION_LABELS = ["up", "down", "left", "right"];
+const PACMAN_DIRECTION_MAP = [1, 3, 2, 0];
+
 export async function loadTruncatedMobileNet() {
   const mobilenet = await tf.loadLayersModel(
     "https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json"
@@ -63,6 +66,29 @@ export async function processImages(imgSrcArr, truncatedMobileNet) {
   );
 
   return { xs, ys };
+}
+
+function runModelPrediction(truncatedMobileNet, model, imgTensor) {
+  return tf.tidy(() => {
+    const embeddings = truncatedMobileNet.predict(imgTensor);
+    const predictions = model.predict(embeddings);
+    const probabilities = Array.from(predictions.dataSync());
+
+    let bestIdx = -1;
+    let bestProb = -Infinity;
+    probabilities.forEach((prob, idx) => {
+      if (prob > bestProb) {
+        bestProb = prob;
+        bestIdx = idx;
+      }
+    });
+
+    return {
+      probabilities,
+      classId: bestIdx,
+      confidence: bestIdx >= 0 ? probabilities[bestIdx] : 0,
+    };
+  });
 }
 
 export async function buildModel(
@@ -134,32 +160,56 @@ export async function buildModel(
 }
 
 export async function predict(truncatedMobileNet, model, img) {
-  const embeddings = truncatedMobileNet.predict(img);
-  const predictions = await model.predict(embeddings);
-  const predictedClass = predictions.as1D().argMax();
-  const classId = (await predictedClass.data())[0];
+  const { classId } = runModelPrediction(truncatedMobileNet, model, img);
   return classId;
 }
 
 export async function predictDirection(webcamRef, truncatedMobileNet, model) {
-  const newImageSrc = webcamRef.current.getScreenshot();
-  if (newImageSrc) {
-    const imgTensor = await base64ToTensor(newImageSrc);
-    const prediction = await predict(truncatedMobileNet, model, imgTensor);
+  const result = await predictDirectionWithConfidence(
+    webcamRef,
+    truncatedMobileNet,
+    model
+  );
 
-    switch (prediction) {
-      case 0:
-        return 1;
-      case 1:
-        return 3;
-      case 2:
-        return 2;
-      case 3:
-        return 0;
-      default:
-        return -1;
-    }
+  if (!result) {
+    return -1;
   }
+
+  return result.pacmanDirection;
+}
+
+export async function predictDirectionWithConfidence(
+  webcamRef,
+  truncatedMobileNet,
+  model
+) {
+  if (!webcamRef?.current) {
+    return null;
+  }
+
+  const newImageSrc = webcamRef.current.getScreenshot();
+  if (!newImageSrc) {
+    return null;
+  }
+
+  const imgTensor = await base64ToTensor(newImageSrc);
+  const { classId, confidence, probabilities } = runModelPrediction(
+    truncatedMobileNet,
+    model,
+    imgTensor
+  );
+  tf.dispose(imgTensor);
+
+  if (classId < 0 || classId >= DIRECTION_LABELS.length) {
+    return null;
+  }
+
+  return {
+    directionLabel: DIRECTION_LABELS[classId],
+    pacmanDirection: PACMAN_DIRECTION_MAP[classId],
+    confidence,
+    probabilities,
+  };
 }
 
 export async function base64ToTensor(base64) {

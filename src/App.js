@@ -2,6 +2,7 @@ import React from "react";
 import PacMan from "./components/PacMan";
 import MLTrain from "./components/MLTrain";
 import DataCollection from "./components/DataCollection";
+import InteractiveValidation from "./components/InteractiveValidation";
 import {
     Box,
     CssBaseline,
@@ -66,6 +67,16 @@ export default function App() {
                                 }}
                             >
                                 <MLTrain webcamRef={webcamRef} />
+                            </Paper>
+                            <Paper
+                                sx={{
+                                    p: 2,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    marginTop: 3,
+                                }}
+                            >
+                                <InteractiveValidation webcamRef={webcamRef} />
                             </Paper>
                         </Grid>
                         {/* Recent Deposits */}
