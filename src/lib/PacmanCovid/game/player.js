@@ -11,10 +11,14 @@ function getEatenFood(food, player, newPosition) {
     );
 }
 
-function getNewPlayerVector(player, time) {
+// function getNewPlayerVector(player, time) { 
+function getNewPlayerVector(player, time, speedMultiplier = 1.0) { // Feature 2
     try {
+        // const { newPosition, movedDistance } = getNewPosition(player.position, player.direction,
+        //     PLAYER_SPEED, time);
+
         const { newPosition, movedDistance } = getNewPosition(player.position, player.direction,
-            PLAYER_SPEED, time);
+            PLAYER_SPEED * speedMultiplier, time); // Feature 2
 
         if (player.nextDirection !== player.direction) {
             const changedVector = getChangedVector(player.position, newPosition,
@@ -44,8 +48,10 @@ function eatMonsters(state) {
     };
 }
 
-export function animatePlayer(state, time) {
-    const newVector = getNewPlayerVector(state.player, time);
+export function animatePlayer(state, time, speedMultiplier = 1.0) { // Feature 2
+// export function animatePlayer(state, time) {
+    // const newVector = getNewPlayerVector(state.player, time);
+    const newVector = getNewPlayerVector(state.player, time, speedMultiplier); // Feature 2
     const eatenFoodIndex = getEatenFood(state.food, state.player, newVector.position);
     const food = state.food.slice();
     let scoreDelta = 0;

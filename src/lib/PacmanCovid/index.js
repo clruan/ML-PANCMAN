@@ -52,7 +52,9 @@ export default class PacmanCovid extends Component {
   }
 
   step() {
-    const result = animate(this.state);
+    const speedMultiplier = this.props.speedMultiplier || 1.0;  // Feature 2
+    const result = animate(this.state, { speedMultiplier }); // Feature 2
+    // const result = animate(this.state);
 
     this.setState({
       ...result,

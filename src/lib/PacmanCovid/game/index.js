@@ -9,7 +9,9 @@ function collectEatenMonsterScores(newState, oldState) {
     return { ...newState, score: newState.score + scoreDelta };
 }
 
-export function animate(state, { time = Date.now() } = {}) {
+export function animate(state, { time = Date.now(), speedMultiplier = 1.0 } = {}) { // Feature 2
+// export function animate(state, { time = Date.now()) {
+
     // get the next game state as a function of time
 
     const timeSeconds = (time - state.stepTime) / 1000;
@@ -18,7 +20,8 @@ export function animate(state, { time = Date.now() } = {}) {
         return state;
     }
 
-    const statePlayerAnimated = animatePlayer({ ...state, stepTime: time }, timeSeconds);
+    const statePlayerAnimated = animatePlayer({ ...state, stepTime: time }, timeSeconds, speedMultiplier); // Feature 2
+    // const statePlayerAnimated = animatePlayer({ ...state, stepTime: time }, timeSeconds);
 
     const stateMonstersAnimated = animateMonsters(statePlayerAnimated, timeSeconds, state.player);
 

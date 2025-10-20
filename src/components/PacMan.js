@@ -1,4 +1,5 @@
 import { Button } from "@mui/material";
+import { useEmotionContext } from "../model/EmotionContext"; // Feature 2
 import "../lib/PacmanCovid/styles/index.scss";
 import PacmanCovid from "../lib/PacmanCovid";
 import {
@@ -9,6 +10,7 @@ import { useAtom } from "jotai";
 export default function PacMan() {
     const [isRunning, setIsRuning] = useAtom(gameRunningAtom);
     const [predictionDirection] = useAtom(predictionAtom);
+    const { speedMultiplier } = useEmotionContext(); // Feature 2
 
     const pacManProps = {
         gridSize: 17,
@@ -26,6 +28,7 @@ export default function PacMan() {
                 isRunning={isRunning}
                 setIsRuning={setIsRuning}
                 predictions={predictionDirection}
+                speedMultiplier={speedMultiplier} // Feature 2
             />
             {!isRunning && (
                 <Button
