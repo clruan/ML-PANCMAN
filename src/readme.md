@@ -1,5 +1,11 @@
 # Feature 2: Anger-Based Acceleration
 
+## Note
+Make sure to run this first
+```Code
+npm install @vladmandic/face-api
+```
+
 ## Emotion State (Global)
 Available in `App.js`:
 ```javascript
