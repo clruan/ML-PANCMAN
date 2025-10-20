@@ -25,17 +25,6 @@ export default function App() {
     // Feature 2
     const [gameRunning] = useAtom(gameRunningAtom);
     const emotionState = useEmotionDetection(webcamRef, true); // once the user starts the camera, the face dectection will run
-    /**
-     * What emotionState Contains:
-
-  {
-      emotion: {angry: 0.91, happy: 0.04, ...},  // All 7 emotions
-      angerScore: 0.91,                           // Just the anger value
-      speedMultiplier: 2.4,                       // Current speed
-      isModelLoaded: true,                        // Model ready?
-      isAngryDetected: true                       // Anger > 70%?
-  }
-     */
 
     return (
         <EmotionContext.Provider value={emotionState}>
