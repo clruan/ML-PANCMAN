@@ -1,9 +1,9 @@
 # Feature 2: Anger-Based Acceleration
 
 ## Note
-Make sure to run this first
+Make sure to run this first to install related package
 ```Code
-npm install @vladmandic/face-api
+npm install
 ```
 
 ## Emotion State (Global)
