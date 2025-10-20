@@ -22,4 +22,4 @@ const emotionState = useEmotionDetection(webcamRef, true);
 
 ## Feature 2 Visualization Tip
 **Location**: Can be done in `App.js` lines 73-81 \
-**Task**: Use `emotionState` to create visual feedback for anger-based speed changes
+Use `emotionState` to create some visual feedbacks
