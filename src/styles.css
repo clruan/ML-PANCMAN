@@ -136,8 +136,6 @@ body {
   pointer-events: none;
   transition: opacity 0.18s ease, transform 0.18s ease;
   mix-blend-mode: screen;
-  mask-image: radial-gradient(circle, transparent 0 45%, rgba(0, 0, 0, 0.75) 70%, rgba(0, 0, 0, 0.95) 100%);
-  -webkit-mask-image: radial-gradient(circle, transparent 0 45%, rgba(0, 0, 0, 0.75) 70%, rgba(0, 0, 0, 0.95) 100%);
 }
 
 .camera-face-ring::after {
@@ -154,6 +152,7 @@ body {
   align-items: center;
   justify-content: center;
   color: inherit;
+  font-size: 2.5rem;
 }
 
 .camera-face-overlay-info {

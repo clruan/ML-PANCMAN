@@ -1,11 +1,5 @@
 import Webcam from "react-webcam";
 import { Grid, Button, Box, Typography } from "@mui/material";
-import {
-    ArrowUpward,
-    ArrowDownward,
-    ArrowBack,
-    ArrowForward,
-} from "@mui/icons-material/";
 import { useAtom } from "jotai";
 import {
     imgSrcArrAtom,
@@ -17,13 +11,12 @@ import {
     validationDirectionAtom,
     validationThresholdAtom,
 } from "../GlobalState";
+import {
+    DIRECTION_ICON_COMPONENTS,
+    DIRECTION_KEYS,
+} from "../constants/directions";
 
-const DIRECTIONS = {
-    up: <ArrowUpward />,
-    down: <ArrowDownward />,
-    left: <ArrowBack />,
-    right: <ArrowForward />,
-};
+const DIRECTION_ICONS = DIRECTION_ICON_COMPONENTS;
 
 const HIGHLIGHT_ROTATIONS = {
     up: 0,
@@ -135,12 +128,12 @@ export default function DataCollection({ webcamRef }) {
                 </Box>
             </Grid>
 
-            {Object.keys(DIRECTIONS).map((directionKey) => {
+            {DIRECTION_KEYS.map((directionKey) => {
                 return (
                     <OneDirection
                         key={directionKey}
                         disabled={!isCameraOn}
-                        directionIcon={DIRECTIONS[directionKey]}
+                        directionIcon={DIRECTION_ICONS[directionKey]}
                         onCapture={capture(directionKey)}
                         dirImgSrcArr={imgSrcArr.filter((d) => d.label == directionKey)}
                     />
@@ -151,12 +144,13 @@ export default function DataCollection({ webcamRef }) {
 }
 
 const OneDirection = ({ directionIcon, onCapture, dirImgSrcArr, disabled }) => {
+    const Icon = directionIcon;
     return (
         <Grid item xs={3}>
             <Box textAlign="center">
                 <Button
                     variant="outlined"
-                    endIcon={directionIcon}
+                    endIcon={Icon ? <Icon /> : null}
                     onClick={onCapture}
                     disabled={disabled}
                 >
@@ -183,6 +177,11 @@ const CameraOverlay = ({
     validationDirection,
     validationThreshold,
 }) => {
+    const DirectionIcon =
+        validationDirection && DIRECTION_ICONS[validationDirection]
+            ? DIRECTION_ICONS[validationDirection]
+            : null;
+
     if (!validationActive) {
         return null;
     }
@@ -229,23 +228,26 @@ const CameraOverlay = ({
     ) {
         const rotation = HIGHLIGHT_ROTATIONS[validationDirection];
         const spread = 40 + normalizedConfidence * 18;
-        const start = -spread / 2;
-        const end = spread / 2;
-        const strength = 0.3 + normalizedConfidence * 0.55;
-        const gradient = `conic-gradient(from ${start}deg, rgba(76,175,80, ${strength}) 0deg, rgba(76,175,80, 0.15) ${end * 0.55}deg, rgba(76,175,80, 0) ${end}deg, transparent 360deg)`;
+        const start = -90 - spread / 2;
+        const strength = 0.35 + normalizedConfidence * 0.5;
+        const wedgeColor = `rgba(76,175,80,${strength})`;
+        const edgeFeather = Math.min(6, spread / 3);
+        const innerStart = Math.max(edgeFeather, 0);
+        const innerEnd = Math.max(innerStart, spread - edgeFeather);
+        const wedgeGradient = `conic-gradient(from ${start}deg, transparent 0deg, transparent ${innerStart}deg, ${wedgeColor} ${innerStart}deg, ${wedgeColor} ${innerEnd}deg, transparent ${innerEnd}deg, transparent 360deg)`;
+        const innerFade = clamp(34 - normalizedConfidence * 10, 20, 34);
+        const outerFade = Math.min(innerFade + 10, 48);
+        const radialMask = `radial-gradient(circle at center, transparent 0%, transparent ${innerFade}%, rgba(0,0,0,0.85) ${outerFade}%, rgba(0,0,0,1) 100%)`;
         highlightStyle = {
-            background: gradient,
+            backgroundImage: wedgeGradient,
             opacity: clamp(0.2 + normalizedConfidence, 0, 1),
-            transform: `rotate(${rotation}deg) scale(${0.94 + normalizedConfidence * 0.04})`,
+            transform: `rotate(${(rotation + 90) % 360}deg) scale(${0.94 + normalizedConfidence * 0.04})`,
+            maskImage: radialMask,
+            WebkitMaskImage: radialMask,
         };
     }
 
-    const infoLines = [];
-    infoLines.push(
-        `Direction: ${
-            validationDirection ? validationDirection.toUpperCase() : "—"
-        } (${Math.round(validationConfidence * 100)}%)`
-    );
+    const directionConfidence = `${Math.round(validationConfidence * 100)}%`;
 
     return (
         <Box className="camera-face-overlay">
@@ -254,15 +256,31 @@ const CameraOverlay = ({
                     <Box className="camera-face-ring-highlight" style={highlightStyle} />
                 )}
                 <Box className="camera-face-ring-icon">
-                    {validationDirection ? validationDirection.toUpperCase() : "—"}
+                    {DirectionIcon ? <DirectionIcon fontSize="inherit" /> : "—"}
                 </Box>
             </Box>
             <Box className="camera-face-overlay-info">
-                {infoLines.map((line) => (
-                    <Typography key={line} variant="caption">
-                        {line}
-                    </Typography>
-                ))}
+                <Typography
+                    variant="caption"
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                    }}
+                >
+                    Direction:
+                    {DirectionIcon ? (
+                        <DirectionIcon
+                            fontSize="inherit"
+                            sx={{ fontSize: "1.2em", transform: "translateY(1px)" }}
+                        />
+                    ) : (
+                        "—"
+                    )}
+                    <Box component="span" sx={{ opacity: 0.8 }}>
+                        ({directionConfidence})
+                    </Box>
+                </Typography>
             </Box>
         </Box>
     );

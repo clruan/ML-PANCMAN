@@ -11,6 +11,7 @@ import {
 } from "../GlobalState";
 import { predictDirectionWithConfidence } from "../model";
 import { Box, Button, Slider, Stack, Typography, Tooltip } from "@mui/material";
+import { DIRECTION_ICON_COMPONENTS } from "../constants/directions";
 
 export default function InteractiveValidation({ webcamRef }) {
     const [model] = useAtom(modelAtom);
@@ -28,6 +29,10 @@ export default function InteractiveValidation({ webcamRef }) {
     const [isCameraOn] = useAtom(isCameraOnAtom);
 
     const loopRef = useRef(null);
+    const DirectionIcon =
+        validationDirection && DIRECTION_ICON_COMPONENTS[validationDirection]
+            ? DIRECTION_ICON_COMPONENTS[validationDirection]
+            : null;
 
     const runValidation = useCallback(async () => {
         if (
@@ -156,8 +161,20 @@ export default function InteractiveValidation({ webcamRef }) {
             >
                 <Box>
                     <Typography variant="subtitle2">Predicted Direction</Typography>
-                    <Typography variant="h6">
-                        {validationDirection ? validationDirection.toUpperCase() : "—"}
+                    <Typography
+                        variant="h6"
+                        component="div"
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            minHeight: "2.5rem",
+                        }}
+                    >
+                        {DirectionIcon ? (
+                            <DirectionIcon sx={{ fontSize: "2rem" }} />
+                        ) : (
+                            "—"
+                        )}
                     </Typography>
                 </Box>
                 <Box>
@@ -174,4 +191,3 @@ export default function InteractiveValidation({ webcamRef }) {
         </Stack>
     );
 }
-
