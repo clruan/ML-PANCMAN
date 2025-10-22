@@ -11,12 +11,10 @@ import {
     validationDirectionAtom,
     validationThresholdAtom,
 } from "../GlobalState";
-import {
-    DIRECTION_ICON_COMPONENTS,
-    DIRECTION_KEYS,
-} from "../constants/directions";
+import { DIRECTION_ICON_COMPONENTS } from "../constants/directions";
 
 const DIRECTION_ICONS = DIRECTION_ICON_COMPONENTS;
+const DIRECTION_KEYS = Object.keys(DIRECTION_ICON_COMPONENTS);
 
 const HIGHLIGHT_ROTATIONS = {
     up: 0,
