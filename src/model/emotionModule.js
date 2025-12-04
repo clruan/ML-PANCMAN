@@ -158,12 +158,14 @@ function calculateSpeedMultiplier(angerScore, threshold = 0.5) {
  * @returns {object} Emotion state: { emotion, angerScore, speedMultiplier, 
 isModelLoaded, isAngryDetected }
  */
-export function useEmotionDetection(webcamRef, isRunning, interval = 250) {
+export function useEmotionDetection(webcamRef, isRunning, selectedEmotion = 'angry', interval = 250, threshold = 0.5) {
     // State for emotion data
     const [emotion, setEmotion] = useState(null);
     const [angerScore, setAngerScore] = useState(0);
+    const [boostScore, setBoostScore] = useState(0);           // score for selected emotion
     const [speedMultiplier, setSpeedMultiplier] = useState(1.0);
     const [isModelLoaded, setIsModelLoaded] = useState(false);
+    const [isBoostActive, setIsBoostActive] = useState(false); // thresholded flag
 
     // Ref to track running state without causing re-renders
     const isRunningRef = useRef(false);
@@ -211,10 +213,15 @@ export function useEmotionDetection(webcamRef, isRunning, interval = 250) {
                             const currentAngerScore = emotions.angry || 0;
                             setAngerScore(currentAngerScore);
 
+                            // Use selected emotion (default angry) for boost
+                            const currentBoostScore = emotions[selectedEmotion] || 0;
+                            setBoostScore(currentBoostScore);
+
                             // Calculate speed multiplier
                             const multiplier =
-                                calculateSpeedMultiplier(currentAngerScore);
+                                calculateSpeedMultiplier(currentBoostScore, threshold);
                             setSpeedMultiplier(multiplier);
+                            setIsBoostActive(currentBoostScore >= threshold);
 
                             console.log('Emotions:', emotions);
                             console.log('Anger Score:', (currentAngerScore * 100).toFixed(0) + '%');
@@ -239,14 +246,16 @@ export function useEmotionDetection(webcamRef, isRunning, interval = 250) {
             isCancelled = true;
             isRunningRef.current = false;
         };
-    }, [isRunning, isModelLoaded, webcamRef, interval]);
+    }, [isRunning, isModelLoaded, webcamRef, interval, selectedEmotion, threshold]);
 
     // Return emotion state for consumers
     return {
         emotion,              // All emotion scores: {angry: 0.9, happy: 0.05, ...}
         angerScore,           // Just the anger score: 0.9
+        boostScore,           // Score for selected emotion
         speedMultiplier,      // Calculated multiplier: 2.5
         isModelLoaded,        // Model ready: true/false
-        isAngryDetected: angerScore >= 0.7  // Boolean helper
+        isBoostActive,        // Boolean helper for selected emotion
+        isAngryDetected: angerScore >= 0.7  // Boolean helper (legacy)
     };
 }

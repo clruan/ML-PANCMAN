@@ -18,7 +18,7 @@ export default function PacMan() {
     const [validationConfidence] = useAtom(validationConfidenceAtom);
     const [validationDirection] = useAtom(validationDirectionAtom);
     const [validationThreshold] = useAtom(validationThresholdAtom);
-    const { speedMultiplier, isAngryDetected } = useEmotionContext(); // Feature 2
+    const { speedMultiplier, isBoostActive } = useEmotionContext(); // Feature 2
 
     const pacManProps = {
         gridSize: 17,
@@ -37,7 +37,7 @@ export default function PacMan() {
                 setIsRuning={setIsRuning}
                 predictions={predictionDirection}
                 speedMultiplier={speedMultiplier} // Feature 2
-                isAngryDetected={isAngryDetected}
+                isAngryDetected={isBoostActive}
                 validationActive={validationActive}
                 validationConfidence={validationConfidence}
                 validationDirection={validationDirection}

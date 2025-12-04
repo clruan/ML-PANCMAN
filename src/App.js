@@ -18,18 +18,37 @@ import {
     Container,
     Grid,
     Paper,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Stack,
+    Tooltip,
+    IconButton,
 } from "@mui/material";
+import InfoOutlined from "@mui/icons-material/InfoOutlined";
 
 export default function App() {
     const webcamRef = React.useRef(null);
 
     // Feature 2
     const [gameRunning] = useAtom(gameRunningAtom);
-    const emotionState = useEmotionDetection(webcamRef, true); // once the user starts the camera, the face dectection will run
+    const [selectedEmotion, setSelectedEmotion] = useState("angry");
+    const emotionState = useEmotionDetection(webcamRef, true, selectedEmotion); // once the user starts the camera, the face detection will run
     const [isEmotionDropdownOpen, setIsEmotionDropdownOpen] = useState(false);
 
+    const emotionOptions = [
+        "angry",
+        "happy",
+        "sad",
+        "surprised",
+        "fearful",
+        "disgusted",
+        "neutral",
+    ];
+
     return (
-        <EmotionContext.Provider value={emotionState}>
+        <EmotionContext.Provider value={{ ...emotionState, selectedEmotion, setSelectedEmotion }}>
             <Box sx={{ display: "flex" }}>
                 <CssBaseline />
                 <AppBar position="absolute">
@@ -59,10 +78,10 @@ export default function App() {
                         <Grid container spacing={3}>
 
                             {/* Chart */}
-                            <Grid 
-                                item 
-                                xs={12} 
-                                md={6} 
+                            <Grid
+                                item
+                                xs={12}
+                                md={6}
                                 lg={6}
                                 sx={{
                                     position: 'relative',
@@ -127,15 +146,59 @@ export default function App() {
                                         p: 2,
                                         textAlign: 'center',
                                         marginTop: 3,
-                                        backgroundColor: emotionState.isAngryDetected ? '#d63737ff' : 'white',
+                                        backgroundColor: emotionState.isBoostActive ? '#d63737ff' : 'white',
                                         cursor: 'pointer'  // Show it's clickable
                                     }}
                                     onClick={() => setIsEmotionDropdownOpen(!isEmotionDropdownOpen)}
                                 >
-                                    AngerScore: {(emotionState.angerScore * 100).toFixed(0)}%
-                                    <span style={{ marginLeft: '10px' }}>
-                                        {isEmotionDropdownOpen ? '▲' : '▼'} See more scores
-                                    </span>
+                                    <Box
+                                        display="flex"
+                                        alignItems="center"
+                                        justifyContent="space-between"
+                                        gap={1}
+                                        flexWrap="wrap"
+                                    >
+                                        <Stack
+                                            direction="row"
+                                            spacing={2}
+                                            alignItems="center"
+                                            justifyContent="center"
+                                            flexWrap="wrap"
+                                            sx={{ flex: 1 }}
+                                        >
+                                            <FormControl size="small" sx={{ minWidth: 180 }}>
+                                                <InputLabel id="boost-emotion-select-label">Select Emotion</InputLabel>
+                                                <Select
+                                                    labelId="boost-emotion-select-label"
+                                                    value={selectedEmotion}
+                                                    label="Select Emotion"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    onChange={(e) => setSelectedEmotion(e.target.value)}
+                                                >
+                                                    {emotionOptions.map((emotion) => (
+                                                        <MenuItem key={emotion} value={emotion}>
+                                                            {emotion.charAt(0).toUpperCase() + emotion.slice(1)}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                            <Typography>
+                                                {selectedEmotion.charAt(0).toUpperCase() + selectedEmotion.slice(1)} Score: {(emotionState.boostScore * 100).toFixed(0)}%
+                                            </Typography>
+                                            <span style={{ marginLeft: '10px' }}>
+                                                {isEmotionDropdownOpen ? '▲' : '▼'} See more scores
+                                            </span>
+                                            <Tooltip title="Select which emotion will boost Pac-Man's speed. The confiduence score is calculated right away from your webcmera feed.">
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    aria-label="Select boost emotion help"
+                                                >
+                                                    <InfoOutlined fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Stack>
+                                    </Box>
                                     <br />
                                 </Paper>
                                 {isEmotionDropdownOpen && emotionState.emotion && (

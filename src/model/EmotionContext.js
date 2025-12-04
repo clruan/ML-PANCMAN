@@ -6,10 +6,14 @@ import { createContext, useContext } from 'react';
  */
 export const EmotionContext = createContext({
     emotion: null,              // {angry: 0.9, happy: 0.05, ...}
+    selectedEmotion: 'angry',   // emotion driving the boost
+    boostScore: 0,              // score for selected emotion
     angerScore: 0,              // 0 to 1
     speedMultiplier: 1.0,       // 1.0 to 3.0
     isModelLoaded: false,       // true/false
-    isAngryDetected: false      // true/false
+    isBoostActive: false,       // true/false for selected emotion
+    isAngryDetected: false,     // legacy flag for angry
+    setSelectedEmotion: () => {} // setter placeholder
 });
 
 /**
