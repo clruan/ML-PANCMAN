@@ -12,6 +12,7 @@ import {
     validationProbabilitiesAtom,
 } from "../GlobalState";
 import { useAtom } from "jotai";
+import { getEmotionColor } from "../constants/emotions";
 export default function PacMan() {
     const [isRunning, setIsRuning] = useAtom(gameRunningAtom);
     const [predictionDirection] = useAtom(predictionAtom);
@@ -20,7 +21,9 @@ export default function PacMan() {
     const [validationDirection] = useAtom(validationDirectionAtom);
     const [validationThreshold] = useAtom(validationThresholdAtom);
     const [validationProbabilities] = useAtom(validationProbabilitiesAtom);
-    const { speedMultiplier, isBoostActive } = useEmotionContext(); // Feature 2
+    const { speedMultiplier, isBoostActive, selectedEmotion } = useEmotionContext(); // Feature 2
+
+    const boostColor = getEmotionColor(selectedEmotion);
 
     const pacManProps = {
         gridSize: 17,
@@ -40,6 +43,7 @@ export default function PacMan() {
                 predictions={predictionDirection}
                 speedMultiplier={speedMultiplier} // Feature 2
                 isAngryDetected={isBoostActive}
+                boostColor={boostColor}
                 validationActive={validationActive}
                 validationConfidence={validationConfidence}
                 validationDirection={validationDirection}

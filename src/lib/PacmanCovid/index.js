@@ -107,6 +107,7 @@ export default class PacmanCovid extends Component {
         <Player
           {...props}
           {...this.state.player}
+          boostColor={this.props.boostColor}
           lost={this.state.lost}
           isRunning={this.props.isRunning}
           onEnd={this.handleTheEnd}
@@ -150,4 +151,5 @@ PacmanCovid.propTypes = {
   setIsRuning: PropTypes.func.isRequired,
   gridSize: PropTypes.number.isRequired,
   onEnd: PropTypes.func,
+  boostColor: PropTypes.string,
 };

@@ -27,6 +27,7 @@ import {
     IconButton,
 } from "@mui/material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
+import { getEmotionColor, withAlpha } from "./constants/emotions";
 
 export default function App() {
     const webcamRef = React.useRef(null);
@@ -146,7 +147,9 @@ export default function App() {
                                         p: 2,
                                         textAlign: 'center',
                                         marginTop: 3,
-                                        backgroundColor: emotionState.isBoostActive ? '#d63737ff' : 'white',
+                                        backgroundColor: emotionState.isBoostActive
+                                            ? withAlpha(getEmotionColor(selectedEmotion), 0.18)
+                                            : "white",
                                         cursor: 'pointer'  // Show it's clickable
                                     }}
                                     onClick={() => setIsEmotionDropdownOpen(!isEmotionDropdownOpen)}
@@ -162,11 +165,14 @@ export default function App() {
                                             direction="row"
                                             spacing={2}
                                             alignItems="center"
-                                            justifyContent="center"
-                                            flexWrap="wrap"
+                                            justifyContent="space-between"
+                                            flexWrap="nowrap"
                                             sx={{ flex: 1 }}
                                         >
-                                            <FormControl size="small" sx={{ minWidth: 180 }}>
+                                            <FormControl
+                                                size="small"
+                                                sx={{ width: 200, flexShrink: 0 }}
+                                            >
                                                 <InputLabel id="boost-emotion-select-label">Select Emotion</InputLabel>
                                                 <Select
                                                     labelId="boost-emotion-select-label"
@@ -182,12 +188,42 @@ export default function App() {
                                                     ))}
                                                 </Select>
                                             </FormControl>
-                                            <Typography>
-                                                {selectedEmotion.charAt(0).toUpperCase() + selectedEmotion.slice(1)} Score: {(emotionState.boostScore * 100).toFixed(0)}%
+                                            <Typography sx={{ whiteSpace: "nowrap", flexShrink: 0 }}>
+                                                <span
+                                                    style={{
+                                                        display: "inline-block",
+                                                        width: "8ch",
+                                                        textAlign: "right",
+                                                        marginRight: 1,
+                                                    }}
+                                                >
+                                                    {selectedEmotion.charAt(0).toUpperCase() + selectedEmotion.slice(1)}
+                                                </span>
+                                                {" Score:"}
+                                                <span
+                                                    style={{
+                                                        display: "inline-block",
+                                                        width: "3ch",
+                                                        textAlign: "right",
+                                                        marginLeft: 1,
+                                                        fontVariantNumeric: "tabular-nums",
+                                                    }}
+                                                >
+                                                    {(emotionState.boostScore * 100).toFixed(0)}
+                                                </span>
+                                                %
                                             </Typography>
-                                            <span style={{ marginLeft: '10px' }}>
+                                            <span style={{ marginLeft: '5px', whiteSpace: 'nowrap' }}>
                                                 {isEmotionDropdownOpen ? '▲' : '▼'} See more scores
                                             </span>
+                                        </Stack>
+                                        <Box
+                                            sx={{
+                                                width: "100%",
+                                                display: "flex",
+                                                justifyContent: "flex-end",
+                                            }}
+                                        >
                                             <Tooltip title="Select which emotion will boost Pac-Man's speed. The confiduence score is calculated right away from your webcmera feed.">
                                                 <IconButton
                                                     size="small"
@@ -197,7 +233,7 @@ export default function App() {
                                                     <InfoOutlined fontSize="small" />
                                                 </IconButton>
                                             </Tooltip>
-                                        </Stack>
+                                        </Box>
                                     </Box>
                                     <br />
                                 </Paper>
@@ -205,18 +241,37 @@ export default function App() {
                                     <Paper sx={{ p: 2, marginTop: 3 }}>
                                         <Typography variant="h6" gutterBottom>All Emotions:</Typography>
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                                            {Object.entries(emotionState.emotion).map(([emotionName, score]) => (
-                                                <span
-                                                    key={emotionName}
-                                                    style={{
-                                                        flexBasis: 'calc(33.33% - 10px)',  // 3 items per row
-                                                        minWidth: '120px'
-                                                    }}
-                                                >
-                                                    <strong>{emotionName.charAt(0).toUpperCase() + emotionName.slice(1)}:</strong> {(score *
-                                                        100).toFixed(0)}%
-                                                </span>
-                                            ))}
+                                            {Object.entries(emotionState.emotion).map(([emotionName, score]) => {
+                                                const color = getEmotionColor(emotionName);
+                                                const isSelected = selectedEmotion === emotionName;
+                                                return (
+                                                    <span
+                                                        key={emotionName}
+                                                        style={{
+                                                            flexBasis: 'calc(33.33% - 10px)',  // 3 items per row
+                                                            minWidth: '120px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '6px',
+                                                            fontWeight: isSelected ? 'bold' : 'normal'
+                                                        }}
+                                                    >
+                                                        <span
+                                                            style={{
+                                                                width: 10,
+                                                                height: 10,
+                                                                borderRadius: '50%',
+                                                                backgroundColor: color,
+                                                                flexShrink: 0
+                                                            }}
+                                                        />
+                                                        <span>
+                                                            {emotionName.charAt(0).toUpperCase() + emotionName.slice(1)}: {(score *
+                                                                100).toFixed(0)}%
+                                                        </span>
+                                                    </span>
+                                                );
+                                            })}
                                         </div>
                                     </Paper>
                                 )}

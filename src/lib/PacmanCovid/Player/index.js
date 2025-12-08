@@ -156,13 +156,22 @@ export default class Player extends Component {
   }
 
   render() {
-  const { gridSize, lost, position, direction, speedMultiplier = 1.0, isAngryDetected = false } = this.props;
+  const {
+    gridSize,
+    lost,
+    position,
+    direction,
+    speedMultiplier = 1.0,
+    isAngryDetected = false,
+    boostColor = '#ff4d4d'
+  } = this.props;
 
-    const isAngry = isAngryDetected || speedMultiplier !== 1.0;
+    const isBoosted = isAngryDetected;
 
-    // choose fill color based on anger / speed
+    // choose fill color based on boost / speed
     const angryT = Math.min(1, Math.max(0, (speedMultiplier - 1) / 2)); // 0..1 when speedMultiplier in [1,3]
-    const fillColor = isAngry ? lerpHexColor('#ffd42a', '#ff4d4d', angryT) : 'yellow';
+    const targetColor = boostColor || '#ff4d4d';
+    const fillColor = isBoosted ? lerpHexColor('#ffd42a', targetColor, angryT) : 'yellow';
 
     const pathProps = {
       stroke: 'none',
@@ -194,7 +203,7 @@ export default class Player extends Component {
       <svg className="pacmancovid-player" style={style}>
           <path d={pacmanPath(radius, this.state.angle, offset)} {...pathProps} />
 
-          {isAngry && (
+          {isBoosted && (
             <g className="angry-features">
               {/* angry eyebrows (slanted lines) */}
               <path d={`M ${cx - eyeOffsetX - eyeR}, ${cy - eyeOffsetY - eyeR} L ${cx - eyeOffsetX + eyeR}, ${cy - eyeOffsetY - eyeR - 2}`} stroke="#2b2b2b" strokeWidth={Math.max(1, radius * 0.06)} strokeLinecap="round" fill="none" />
@@ -219,11 +228,13 @@ Player.propTypes = {
   direction: PropTypes.number.isRequired,
   onEnd: PropTypes.func,
   speedMultiplier: PropTypes.number,
-  isAngryDetected: PropTypes.bool
+  isAngryDetected: PropTypes.bool,
+  boostColor: PropTypes.string,
 };
 
 // New props
 Player.defaultProps = {
   speedMultiplier: 1.0,
-  isAngryDetected: false
+  isAngryDetected: false,
+  boostColor: '#ff4d4d'
 };
