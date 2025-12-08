@@ -7,6 +7,7 @@ import {
     validationConfidenceAtom,
     validationDirectionAtom,
     validationThresholdAtom,
+    validationProbabilitiesAtom,
     isCameraOnAtom,
 } from "../GlobalState";
 import { predictDirectionWithConfidence } from "../model";
@@ -26,6 +27,7 @@ export default function InteractiveValidation({ webcamRef }) {
     const [validationThreshold, setValidationThreshold] = useAtom(
         validationThresholdAtom
     );
+    const [, setValidationProbabilities] = useAtom(validationProbabilitiesAtom);
     const [isCameraOn] = useAtom(isCameraOnAtom);
 
     const loopRef = useRef(null);
@@ -54,11 +56,13 @@ export default function InteractiveValidation({ webcamRef }) {
         if (!result) {
             setValidationDirection(null);
             setValidationConfidence(0);
+            setValidationProbabilities([0, 0, 0, 0]);
             return;
         }
 
         setValidationDirection(result.directionLabel);
         setValidationConfidence(result.confidence);
+        setValidationProbabilities(result.probabilities || [0, 0, 0, 0]);
     }, [
         validationActive,
         model,
@@ -67,6 +71,7 @@ export default function InteractiveValidation({ webcamRef }) {
         isCameraOn,
         setValidationDirection,
         setValidationConfidence,
+        setValidationProbabilities,
     ]);
 
     useEffect(() => {
@@ -97,6 +102,7 @@ export default function InteractiveValidation({ webcamRef }) {
         if (validationActive) {
             setValidationDirection(null);
             setValidationConfidence(0);
+            setValidationProbabilities([0, 0, 0, 0]);
         }
     };
 

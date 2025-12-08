@@ -118,6 +118,7 @@ export default class PacmanCovid extends Component {
             validationConfidence={this.props.validationConfidence}
             validationDirection={this.props.validationDirection}
             validationThreshold={this.props.validationThreshold}
+            validationProbabilities={this.props.validationProbabilities}
           />
         )}
         <Dialog

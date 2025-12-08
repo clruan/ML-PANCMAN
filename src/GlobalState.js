@@ -25,3 +25,4 @@ export const validationActiveAtom = atom(false); // Validation loop state
 export const validationDirectionAtom = atom(null); // Latest validation direction label
 export const validationConfidenceAtom = atom(0); // Latest validation confidence
 export const validationThresholdAtom = atom(0.7); // Default confidence threshold
+export const validationProbabilitiesAtom = atom([0, 0, 0, 0]); // Probabilities for [up, down, left, right]

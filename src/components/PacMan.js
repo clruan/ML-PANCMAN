@@ -9,6 +9,7 @@ import {
     validationConfidenceAtom,
     validationDirectionAtom,
     validationThresholdAtom,
+    validationProbabilitiesAtom,
 } from "../GlobalState";
 import { useAtom } from "jotai";
 export default function PacMan() {
@@ -18,6 +19,7 @@ export default function PacMan() {
     const [validationConfidence] = useAtom(validationConfidenceAtom);
     const [validationDirection] = useAtom(validationDirectionAtom);
     const [validationThreshold] = useAtom(validationThresholdAtom);
+    const [validationProbabilities] = useAtom(validationProbabilitiesAtom);
     const { speedMultiplier, isBoostActive } = useEmotionContext(); // Feature 2
 
     const pacManProps = {
@@ -42,6 +44,7 @@ export default function PacMan() {
                 validationConfidence={validationConfidence}
                 validationDirection={validationDirection}
                 validationThreshold={validationThreshold}
+                validationProbabilities={validationProbabilities}
             />
             {!isRunning && (
                 <Button
