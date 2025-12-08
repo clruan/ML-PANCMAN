@@ -2,7 +2,7 @@
     "name": "react.dev",
     "version": "0.0.0",
     "main": "/src/index.js",
-    "homepage": "https://eggshell.github.io/ML-PANCMAN/",
+    "homepage": "https://clruan.github.io/ML-PANCMAN/",
     "scripts": {
         "start": "react-scripts start",
         "build": "react-scripts build",
