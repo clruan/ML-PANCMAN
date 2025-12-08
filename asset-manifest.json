@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/ML-PANCMAN/static/css/main.dcb07876.css",
+    "main.js": "/ML-PANCMAN/static/js/main.c8084148.js",
+    "index.html": "/ML-PANCMAN/index.html",
+    "main.dcb07876.css.map": "/ML-PANCMAN/static/css/main.dcb07876.css.map",
+    "main.c8084148.js.map": "/ML-PANCMAN/static/js/main.c8084148.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.dcb07876.css",
+    "static/js/main.c8084148.js"
+  ]
+}
