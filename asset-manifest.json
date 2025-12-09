@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/ML-PANCMAN/static/css/main.dcb07876.css",
-    "main.js": "/ML-PANCMAN/static/js/main.c8084148.js",
+    "main.css": "/ML-PANCMAN/static/css/main.d6f5a962.css",
+    "main.js": "/ML-PANCMAN/static/js/main.8e295a60.js",
     "index.html": "/ML-PANCMAN/index.html",
-    "main.dcb07876.css.map": "/ML-PANCMAN/static/css/main.dcb07876.css.map",
-    "main.c8084148.js.map": "/ML-PANCMAN/static/js/main.c8084148.js.map"
+    "main.d6f5a962.css.map": "/ML-PANCMAN/static/css/main.d6f5a962.css.map",
+    "main.8e295a60.js.map": "/ML-PANCMAN/static/js/main.8e295a60.js.map"
   },
   "entrypoints": [
-    "static/css/main.dcb07876.css",
-    "static/js/main.c8084148.js"
+    "static/css/main.d6f5a962.css",
+    "static/js/main.8e295a60.js"
   ]
 }
