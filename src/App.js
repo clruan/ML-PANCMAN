@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAtom } from "jotai";
 import { gameRunningAtom } from "./GlobalState";
 import PacMan from "./components/PacMan";
@@ -9,7 +9,12 @@ import InteractiveValidation from "./components/InteractiveValidation";
 import { useEmotionDetection } from "./model/emotionModule";
 import { EmotionContext } from "./model/EmotionContext";
 
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
+import "./driver-overrides.css";
+
 import {
+    Button,
     Box,
     CssBaseline,
     AppBar,
@@ -25,6 +30,7 @@ import {
     Stack,
     Tooltip,
     IconButton,
+    colors,
 } from "@mui/material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { getEmotionColor, withAlpha } from "./constants/emotions";
@@ -48,6 +54,93 @@ export default function App() {
         "neutral",
     ];
 
+    const pacmanGifUrl = `${process.env.PUBLIC_URL}/pacman.gif`
+
+    const startTour = () => {
+        const tour = driver({
+            opacity: 0.75,
+            allowClose: true,
+            showProgress: true,
+            steps: [
+                {
+                    element: '[data-tour="data-collection"]',
+                    popover: {
+                        title: "Step 1: Collect gesture data",
+                        description:
+                            "Turn on the camera and record several examples for each direction. This is how the AI learns your gestures.",
+                        side: "right",
+                        align: "start",
+                    },
+                },
+                {
+                    element: '[data-tour="train"]',
+                    popover: {
+                        title: "Step 2: Train the model",
+                        description:
+                            "Click “Train” to fine-tune the model on your data. Better, more balanced examples usually give better control.",
+                        side: "right",
+                        align: "start",
+                    },
+                },
+                {
+                    element: '[data-tour="validation"]',
+                    popover: {
+                        title: "Step 3: Validate predictions",
+                        description:
+                            "Use this panel to see live predictions and confidence, and adjust the threshold before starting the game.",
+                        side: "right",
+                        align: "start",
+                    },
+                },
+                {
+                    element: '[data-tour="emotion"]',
+                    popover: {
+                        title: "Step 4: Emotion-based speed control",
+                        description:
+                            "Choose which emotion will boost Pac‑Man, and watch the live emotion scores to understand how the model reacts.",
+                        side: "left",
+                        align: "start",
+                    },
+                },
+                {
+                    element: '[data-tour="game"]',
+                    popover: {
+                        title: "Step 5: Play with AI",
+                        description:
+                            `
+        <div style="text-align: center;">
+          <img
+            src="${pacmanGifUrl}"
+            alt="Pac-Man"
+            style="max-width: 250px; display: block; margin: 0 auto 8px;"
+          />
+          <div>Have fun! Gestures steer Pac-Man, emotions control speed.</div>
+        </div>
+      `,
+                        side: "left",
+                        align: "start",
+                    },
+                },
+            ],
+        });
+
+        tour.drive();
+    };
+
+    // On first load, check if the tour has been seen
+    useEffect(() => {
+        const hasSeenTour = window.localStorage.getItem("pacman_tour_seen");
+        if (!hasSeenTour) {
+            try {
+                startTour();
+                window.localStorage.setItem("pacman_tour_seen", "true");
+            } catch (e) {
+                console.error("Failed to start tour automatically:", e);
+            }
+        }
+    }, []);
+
+
     return (
         <EmotionContext.Provider value={{ ...emotionState, selectedEmotion, setSelectedEmotion }}>
             <Box sx={{ display: "flex" }}>
@@ -61,6 +154,16 @@ export default function App() {
                         <Typography component="h1" variant="h3" color="inherit" noWrap>
                             Control PAC MAN via the camera!
                         </Typography>
+                        <Button
+                            variant="outlined"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                startTour();
+                            }}
+                            style={{ color: 'white', borderColor: 'white', marginLeft: '80px', fontSize: '25px' }}
+                        >
+                            Show Tour
+                        </Button>
                     </Toolbar>
                 </AppBar>
 
@@ -77,7 +180,6 @@ export default function App() {
                     <Toolbar />
                     <Container sx={{ paddingTop: 3 }}>
                         <Grid container spacing={3}>
-
                             {/* Chart */}
                             <Grid
                                 item
@@ -105,6 +207,7 @@ export default function App() {
                                 }}
                             >
                                 <Paper
+                                    data-tour="data-collection"
                                     sx={{
                                         p: 2,
                                         display: "flex",
@@ -116,6 +219,7 @@ export default function App() {
                                     <DataCollection webcamRef={webcamRef} />
                                 </Paper>
                                 <Paper
+                                    data-tour="train"
                                     sx={{
                                         p: 2,
                                         display: "flex",
@@ -126,6 +230,7 @@ export default function App() {
                                     <MLTrain webcamRef={webcamRef} />
                                 </Paper>
                                 <Paper
+                                    data-tour="validation"
                                     sx={{
                                         p: 2,
                                         display: "flex",
@@ -138,11 +243,12 @@ export default function App() {
                             </Grid>
                             {/* Recent Deposits */}
                             <Grid item xs={12} md={6} lg={6}>
-                                <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+                                <Paper data-tour="game" sx={{ p: 2, display: "flex", flexDirection: "column" }}>
                                     <PacMan />
                                 </Paper>
                                 {/* Feature 2*/}
                                 <Paper
+                                    data-tour="emotion"
                                     sx={{
                                         p: 2,
                                         textAlign: 'center',

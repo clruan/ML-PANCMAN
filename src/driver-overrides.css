@@ -1,0 +1,19 @@
+/* Style all tour buttons base */
+.driver-popover-footer button {
+    padding: 4px 10px;
+}
+
+/* Prev button */
+.driver-popover-navigation-btns button:first-child {
+    background-color: transparent;
+    color: #555;
+    border: 1px solid #bbb;
+}
+
+/* Next / Done button */
+.driver-popover-navigation-btns button:last-child {
+    background-color: #1976d2;
+    color: white;
+    border: 1px solid #1976d2;
+    text-shadow: none;
+}
